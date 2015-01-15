@@ -1,4 +1,0 @@
----- sti->fd Æ¥Åä (3 ÔÚ 1 ÎÄ¼ş ) ----
-Services.c:    sti->func(sti->fd, sti->cookie);
-Services.c:    sti->fd = s[1];
-Services.c:    sti->fd = ret_fd;
