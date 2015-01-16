@@ -173,7 +173,8 @@ int main(int argc,char **argv)
 
 		//将server socket绑定到相应的psm
 		server_addr.l2_family = PF_BLUETOOTH;
-		server_addr.l2_psm = htobs(0x1001);//psm类似于tcp中的端口，一个psm只能绑定一个server socket
+		server_addr.l2_psm = htobs(0x1007);
+		//server_addr.l2_psm = htobs(0x1001);//psm类似于tcp中的端口，一个psm只能绑定一个server socket
 		bacpy(&server_addr.l2_bdaddr, BDADDR_ANY);
 		temp = bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
 		if(temp < 0)

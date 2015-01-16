@@ -55,7 +55,8 @@ int main(int argc,char **arg)
 				memset(&client_addr, 0, sizeof(struct sockaddr_l2));
 				client_addr.l2_family = PF_BLUETOOTH;
 				str2ba(ble_addr, &client_addr.l2_bdaddr);
-				client_addr.l2_psm = htobs(0x1001);//这里的0x1003类似于tcp通信的端口，应该是末尾为基数，可设置为0x1005.一个psm只能帮顶一个server socket
+				client_addr.l2_psm = htobs(0x1007);
+				//client_addr.l2_psm = htobs(0x1001);//这里的0x1003类似于tcp通信的端口，应该是末尾为基数，可设置为0x1005.一个psm只能帮顶一个server socket
 
 				//连接远程的蓝牙服务
 				int temp=connect(socketclient, (struct sockaddr*)&client_addr, sizeof(client_addr));
