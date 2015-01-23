@@ -36,7 +36,7 @@ int btsocket_inaddr_any_server(int port, int type)
     bacpy(&addr.l2_bdaddr, BDADDR_ANY);
 	
     n = 1;
-    //setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char*)&n, sizeof(n));
+    setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char*)&n, sizeof(n));
 
     if(bind(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
         close(s);

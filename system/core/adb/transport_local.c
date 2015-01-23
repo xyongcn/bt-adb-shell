@@ -135,31 +135,6 @@ int local_connect_arbitrary_ports(int console_port, int adb_port)
     return -1;
 }
 
-/*
-int bluetooth_connect_remote_device()
-{
-	char buf[64];
-	int  fd = -1;
-
-	int console_port=5556;
-	int adb_port=5557;
-
-	char server_addr[]={"C8:A0:30:76:77:D1"};
-	fd=socket_bluetooth_client(server_addr);
-	if (fd >= 0) {
-		D("client: connected on remote bluetooth Server on fd %d\n", fd);
-		printf("client: connected on remote bluetooth Server on fd %d\n", fd);
-		close_on_exec(fd);
-		disable_tcp_nagle(fd);
-		snprintf(buf, sizeof buf, "%s%d", LOCAL_CLIENT_PREFIX, console_port);
-		register_socket_transport(fd, buf, adb_port, 1);
-		return 0;
-	}
-	printf("connect to the remote BLE server fail\n");
-	return -1;
-
-}
-*/
 static void *client_socket_thread(void *x)
 {
 #if ADB_HOST
@@ -167,7 +142,7 @@ static void *client_socket_thread(void *x)
     int  count = ADB_LOCAL_TRANSPORT_MAX;
 
     D("transport: client_socket_thread() starting\n");
-//adb初次启动服务时，搜寻本机上Android模拟器的adbd服务
+
     /* try to connect to any number of running emulator instances     */
     /* this is only done when ADB starts up. later, each new emulator */
     /* will send a message to ADB to indicate that is is starting up  */
@@ -175,9 +150,6 @@ static void *client_socket_thread(void *x)
         (void) local_connect(port);
     }
 
-//在此处添加启动时连接Bluetooth端的adbd
-//	bluetooth_connect_remote_device();
-	
 #endif
     return 0;
 }
@@ -239,7 +211,7 @@ static void *server_btsocket_thread(void * arg)
     serverfd = -1;
     for(;;) {
         if(serverfd == -1) {
-            serverfd = btsocket_inaddr_any_server(port, SOCK_SEQPACKET);
+            serverfd = btsocket_inaddr_any_server(port, SOCK_STREAM);
             if(serverfd < 0) {
                 D("server: cannot bind btsocket yet\n");
 		//trace2file("server: cannot bind socket yet\n");
@@ -387,12 +359,12 @@ void local_init(int port)
 
     if(HOST) {
         func = client_socket_thread;
-	D("======1======\n");
+	//D("======1======\n");
 	btfunc = server_btsocket_thread;
     } else {
 #if ADB_HOST
         func = server_socket_thread;
-	D("======2======\n");
+	//D("======2======\n");
 #else
         /* For the adbd daemon in the system image we need to distinguish
          * between the device, and the emulator. */
@@ -401,18 +373,18 @@ void local_init(int port)
         if (!strcmp(is_qemu, "1")) {
             /* Running inside the emulator: use QEMUD pipe as the transport. */
             func = qemu_socket_thread;
-	    D("======3======\n");
+	    //D("======3======\n");
         } else {
             /* Running inside the device: use TCP socket as the transport. */
             func = server_socket_thread;
 	    btfunc = server_btsocket_thread;
-	    D("======4======\n");
+	    //D("======4======\n");
 	    if(adb_thread_create(&btthr, btfunc, (void *)btpsm)) {
-		D("======5======\n");
+		//D("======5======\n");
 				fatal_errno("cannot create local btsocket %s thread",
                     HOST ? "client" : "server");
 	    }
-	    D("======6======\n");
+	    //D("======6======\n");
         }
 #endif // !ADB_HOST
     }

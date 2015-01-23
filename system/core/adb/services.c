@@ -498,7 +498,7 @@ static void btconnect_device(char* host, char* buffer, int buffer_size)
 
     snprintf(serial, sizeof(serial), "%s:%d", hostbuf, port);
 
-	fd = btsocket_network_client(hostbuf, port, SOCK_SEQPACKET);
+	fd = btsocket_network_client(hostbuf, port, SOCK_STREAM);
 	
     if (fd < 0) {
         snprintf(buffer, buffer_size, "unable to connect to %s:%d", host, port);
