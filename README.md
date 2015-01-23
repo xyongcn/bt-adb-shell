@@ -17,6 +17,19 @@ Bluetooth-based adb shell application
     * 将system/core/adb中文件替换原有文件
     * include文件放到external/bluetooth/下
     * 不需要额外的bluetooth动态库。
+3. 解包打包uInitrd
+    * 解包：
+      * dd if=boot/uInitrd of=initrd.cpio.gz bs=1 skip=64
+      * sudo gunzip -c initrd.cpio.gz | cpio -i
+    * 替换、修改文件
+      * 替换adbd
+      * 修改default.prop，加入以下行
+        * persist.adb.tcp.port=5000
+        * 如果要打开日志模式，再加入persist.adb.trace_mask=0x3ff，日志记录在/data/adb/adb....txt，只对adbd有效，并且打开后会有点卡。
+    * 打包：
+      * 进入对应目录
+      * sudo find . | cpio -o -H newc | gzip > newinitrd.cpio.gz
+      * mkimage -A arm -O linux -T ramdisk -C gzip -a 0 -e 0 -n initramfs -d newinitrd.cpio.gz uInitrd.new
 
 # 使用方法
 1. 插入电源后需要等2~3分钟再用
