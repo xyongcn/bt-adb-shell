@@ -13,6 +13,10 @@ SRCS+= transport_usb.c
 SRCS+= usb_linux.c
 SRCS+= usb_vendors.c
 SRCS+= adb_auth_host.c
+
+SRCS+= btsocket_network_client.c
+SRCS+= btsocket_inaddr_any_server.c
+
    
 VPATH+= ../libcutils
 SRCS+= list.c
@@ -22,10 +26,6 @@ SRCS+= socket_local_server.c
 SRCS+= socket_loopback_client.c
 SRCS+= socket_loopback_server.c
 SRCS+= socket_network_client.c
-
-SRCS+= btsocket_network_client.c
-SRCS+= btsocket_inaddr_any_server.c
-
 SRCS+= load_file.c
   
 VPATH+= ../libzipfile
@@ -577,7 +577,7 @@ CPPFLAGS+= -I../../../include
 
 CFLAGS+= -O2 -g -Wall -Wno-unused-parameter
  
-LIBS=  -pthread -lrt -L/home/wu/Desktop/android/bt-adb/bluez-3.36/gcc/lib -lbluetooth
+LIBS=  -pthread -lrt -L../../../bluez-lib-3.36_gcc/lib -lbluetooth
 
 TOOLCHAIN= 
 #/home/wu/Desktop/android/arm-linux-androideabi-4.4.3/bin/arm-linux-androideabi-
