@@ -472,13 +472,13 @@ static void connect_device(char* host, char* buffer, int buffer_size)
 static void btconnect_device(char* host, char* buffer, int buffer_size)
 {
     int port, fd;
-    char* portstr = strchr(host, ':');
+//    char* portstr = strchr(host, ':');
     char hostbuf[100];
     char serial[100];
     int ret;
 
     strncpy(hostbuf, host, sizeof(hostbuf) - 1);
-    if (portstr) {
+/*    if (portstr) {
         if (portstr - host >= (ptrdiff_t)sizeof(hostbuf)) {
             snprintf(buffer, buffer_size, "bad host name %s", host);
             return;
@@ -492,6 +492,9 @@ static void btconnect_device(char* host, char* buffer, int buffer_size)
     } else {
         port = DEFAULT_BT_PSM;
     }
+*/
+	port = DEFAULT_BT_PSM;
+
 
     snprintf(serial, sizeof(serial), "%s:%d", hostbuf, port);
 

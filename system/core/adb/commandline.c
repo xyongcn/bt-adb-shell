@@ -1105,6 +1105,22 @@ top:
         }
     }
 
+    if(!strcmp(argv[0], "btconnect")) {
+        char *tmp;
+        if (argc != 2) {
+            fprintf(stderr, "Usage: adb btconnect <host>\n");
+            return 1;
+        }
+        snprintf(buf, sizeof buf, "host:btconnect:%s", argv[1]);
+        tmp = adb_query(buf);
+        if(tmp) {
+            printf("%s\n", tmp);
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+
     if(!strcmp(argv[0], "disconnect")) {
         char *tmp;
         if (argc > 2) {
