@@ -449,7 +449,8 @@ static void connect_device(char* host, char* buffer, int buffer_size)
 
     snprintf(serial, sizeof(serial), "%s:%d", hostbuf, port);
 
-    fd = socket_network_client(hostbuf, port, SOCK_STREAM);
+	fd = socket_network_client(hostbuf, port, SOCK_STREAM);
+	
     if (fd < 0) {
         snprintf(buffer, buffer_size, "unable to connect to %s:%d", host, port);
         return;
@@ -467,6 +468,53 @@ static void connect_device(char* host, char* buffer, int buffer_size)
         snprintf(buffer, buffer_size, "connected to %s", serial);
     }
 }
+
+static void btconnect_device(char* host, char* buffer, int buffer_size)
+{
+    int port, fd;
+    char* portstr = strchr(host, ':');
+    char hostbuf[100];
+    char serial[100];
+    int ret;
+
+    strncpy(hostbuf, host, sizeof(hostbuf) - 1);
+    if (portstr) {
+        if (portstr - host >= (ptrdiff_t)sizeof(hostbuf)) {
+            snprintf(buffer, buffer_size, "bad host name %s", host);
+            return;
+        }
+        // zero terminate the host at the point we found the colon
+        hostbuf[portstr - host] = 0;
+        if (sscanf(portstr + 1, "%d", &port) == 0) {
+            snprintf(buffer, buffer_size, "bad port number %s", portstr);
+            return;
+        }
+    } else {
+        port = DEFAULT_BT_PSM;
+    }
+
+    snprintf(serial, sizeof(serial), "%s:%d", hostbuf, port);
+
+	fd = btsocket_network_client(hostbuf, port, SOCK_SEQPACKET);
+	
+    if (fd < 0) {
+        snprintf(buffer, buffer_size, "unable to connect to %s:%d", host, port);
+        return;
+    }
+
+    D("client: connected on remote on fd %d\n", fd);
+    close_on_exec(fd);
+    disable_tcp_nagle(fd);
+
+    ret = register_socket_transport(fd, serial, port, 0);
+    if (ret < 0) {
+        adb_close(fd);
+        snprintf(buffer, buffer_size, "already connected to %s", serial);
+    } else {
+        snprintf(buffer, buffer_size, "connected to %s", serial);
+    }
+}
+
 
 void connect_emulator(char* port_spec, char* buffer, int buffer_size)
 {
@@ -540,6 +588,20 @@ static void connect_service(int fd, void* cookie)
     writex(fd, resp, strlen(resp));
     adb_close(fd);
 }
+static void btconnect_service(int fd, void* cookie)
+{
+    char buf[4096];
+    char resp[4096];
+    char *host = cookie;
+
+    btconnect_device(host, buf, sizeof(buf));
+
+    // Send response for emulator and device
+    snprintf(resp, sizeof(resp), "%04x%s",(unsigned)strlen(buf), buf);
+    writex(fd, resp, strlen(resp));
+    adb_close(fd);
+}
+
 #endif
 
 #if ADB_HOST
@@ -577,6 +639,10 @@ asocket*  host_service_to_socket(const char*  name, const char *serial)
         const char *host = name + 8;
         int fd = create_service_thread(connect_service, (void *)host);
         return create_local_socket(fd);
+    } else if (!strncmp(name, "btconnect:", 10)){
+		const char *host = name + 10;
+		int fd = create_service_thread(btconnect_service, (void *)host);
+		return create_local_socket(fd);
     }
     return NULL;
 }

@@ -60,6 +60,10 @@ LOCAL_SRC_FILES := \
 	adb_client.c \
 	adb_auth_host.c \
 	sockets.c \
+\
+	btsocket_inaddr_any_server.c \
+	btsocket_network_client.c \
+\
 	services.c \
 	file_sync_client.c \
 	$(EXTRA_SRCS) \
@@ -67,7 +71,8 @@ LOCAL_SRC_FILES := \
 	usb_vendors.c
 
 LOCAL_C_INCLUDES += external/openssl/include
-
+LOCAL_C_INCLUDES += external/bluetooth/include
+#LOCAL_LDLIBS += -Lsystem/core/adb/libhost -lbluetooth
 ifneq ($(USE_SYSDEPS_WIN32),)
   LOCAL_SRC_FILES += sysdeps_win32.c
 else
@@ -109,6 +114,10 @@ LOCAL_SRC_FILES := \
 	transport_usb.c \
 	adb_auth_client.c \
 	sockets.c \
+\
+	btsocket_inaddr_any_server.c \
+	btsocket_network_client.c \
+\
 	services.c \
 	file_sync_service.c \
 	jdwp_service.c \
@@ -119,6 +128,9 @@ LOCAL_SRC_FILES := \
 
 LOCAL_CFLAGS := -O2 -g -DADB_HOST=0 -Wall -Wno-unused-parameter
 LOCAL_CFLAGS += -D_XOPEN_SOURCE -D_GNU_SOURCE
+
+LOCAL_C_INCLUDES += external/bluetooth/include
+#LOCAL_LDLIBS := -Lsystem/core/adb/libfrompanda -lbluetooth
 
 ifneq (,$(filter userdebug eng,$(TARGET_BUILD_VARIANT)))
 LOCAL_CFLAGS += -DALLOW_ADBD_ROOT=1
@@ -139,7 +151,7 @@ include $(BUILD_EXECUTABLE)
 ifneq ($(SDK_ONLY),true)
 include $(CLEAR_VARS)
 
-LOCAL_LDLIBS := -lrt -ldl -lpthread
+#LOCAL_LDLIBS := -lrt -ldl -lpthread -Lsystem/core/adb/libhost -lbluetooth
 
 LOCAL_SRC_FILES := \
 	adb.c \
@@ -151,6 +163,10 @@ LOCAL_SRC_FILES := \
 	adb_client.c \
 	adb_auth_host.c \
 	sockets.c \
+\
+	btsocket_inaddr_any_server.c \
+	btsocket_network_client.c \
+\
 	services.c \
 	file_sync_client.c \
 	get_my_path_linux.c \
@@ -167,6 +183,11 @@ LOCAL_CFLAGS := \
 	-Wno-unused-parameter \
 	-D_XOPEN_SOURCE \
 	-D_GNU_SOURCE
+
+
+#bluetooth
+#LOCAL_C_INCLUDES += external/bluetooth/include
+#LOCAL_LDLIBS += -Lsystem/core/adb/libhost -lbluetooth
 
 LOCAL_C_INCLUDES += external/openssl/include
 

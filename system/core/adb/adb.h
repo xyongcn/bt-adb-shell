@@ -381,6 +381,38 @@ void adb_qemu_trace(const char* fmt, ...);
 
 #  define ADB_TRACING  ((adb_trace_mask & (1 << TRACE_TAG)) != 0)
 
+#define ADB_TRACE_FILE 0
+
+/*  
+#if ADB_TRACE_FILE
+#  define  D(...)                                      \
+	 do {					       \
+	      char sbuf[200];			       \
+	      snprintf(sbuf, 200, "%s::%s():",         \
+			__FILE__, __FUNCTION__);       \
+	      adb_mutex_lock(&D_lock);		       \
+	      int ffd = open("/data/adbd_output.txt",  \
+			O_RDWR|O_CREAT, 00644);	       \
+	      write(ffd, sbuf, sizeof(sbuf));	       \
+	      write(ffd, __VA_ARGS__, 		       \
+			sizeof(__VA_ARGS__));	       \
+	      write(ffd, "\n", 2);	       \
+	      close(ffd);	       		       \
+	      adb_mutex_unlock(&D_lock);} while (0)				       
+#  define  DR(...)                                     \
+        do {                                           \
+            if (ADB_TRACING) {                         \
+                int save_errno = errno;                \
+                adb_mutex_lock(&D_lock);               \
+                errno = save_errno;                    \
+                fprintf(stderr, __VA_ARGS__ );         \
+                fflush(stderr);                        \
+                adb_mutex_unlock(&D_lock);             \
+                errno = save_errno;                    \
+           }                                           \
+        } while (0)			       				       
+#else
+*/
   /* you must define TRACE_TAG before using this macro */
 #  define  D(...)                                      \
         do {                                           \
@@ -412,8 +444,9 @@ void adb_qemu_trace(const char* fmt, ...);
 #  define  D(...)          ((void)0)
 #  define  DR(...)         ((void)0)
 #  define  ADB_TRACING     0
-#endif
+//#endif //if ADB_TRACE_FILE
 
+#endif
 
 #if !DEBUG_PACKETS
 #define print_packet(tag,p) do {} while (0)
@@ -425,10 +458,11 @@ void adb_qemu_trace(const char* fmt, ...);
  */
 #  define DEFAULT_ADB_PORT 5038
 #else
-#  define DEFAULT_ADB_PORT 5037
+#  define DEFAULT_ADB_PORT 7777
 #endif
 
 #define DEFAULT_ADB_LOCAL_TRANSPORT_PORT 5555
+#define DEFAULT_BT_PSM 0x1003
 
 #define ADB_CLASS              0xff
 #define ADB_SUBCLASS           0x42
@@ -438,6 +472,8 @@ void adb_qemu_trace(const char* fmt, ...);
 void local_init(int port);
 int  local_connect(int  port);
 int  local_connect_arbitrary_ports(int console_port, int adb_port);
+//int bluetooth_connect_remote_device();//bluetooth client connect remote device
+
 
 /* usb host/client interface */
 void usb_init();

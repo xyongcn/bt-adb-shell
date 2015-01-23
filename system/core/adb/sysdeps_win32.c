@@ -6,6 +6,13 @@
 #define  TRACE_TAG  TRACE_SYSDEPS
 #include "adb.h"
 
+#if ADB_HOST
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/hci.h>
+#include <bluetooth/hci_lib.h>
+#include <bluetooth/l2cap.h>
+#endif
+
 extern void fatal(const char *fmt, ...);
 
 #define assert(cond)  do { if (!(cond)) fatal( "assertion failed '%s' on %s:%ld\n", #cond, __FILE__, __LINE__ ); } while (0)
@@ -700,6 +707,43 @@ int socket_network_client(const char *host, int port, int type)
     return _fh_to_int(f);
 }
 
+int btsocket_network_client(char *server_addr, int cid, int type)
+{
+	FH  f = _fh_alloc( &_fh_socket_class );
+    //struct hostent *hp;
+    //struct sockaddr_in addr;
+    struct sockaddr_l2 addr;
+    SOCKET s;
+
+    if (!f)
+        return -1;
+
+    if (!_winsock_init)
+        _init_winsock();
+
+	
+    memset(&addr, 0, sizeof(struct sockaddr_l2));
+    addr.l2_family = PF_BLUETOOTH;
+	str2ba(server_addr, &addr.l2_bdaddr);
+	client_addr.l2_psm = htobs(cid);//0x1003);
+
+    s = socket(PF_BLUETOOTH, type, BTPROTO_L2CAP);
+    if(s < 0) {
+        _fh_close(f);
+        return -1;
+    }
+    f->fh_socket = s;
+
+    if(connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+        _fh_close(f);
+        return -1;
+    }
+
+    snprintf( f->name, sizeof(f->name), "(bluetooth-client:%s)", server_addr);
+    D( "socket_bluetooth_client: connect to server %s\n", server_addr);
+    return _fh_to_int(f);
+
+}
 
 int socket_inaddr_any_server(int port, int type)
 {
@@ -747,6 +791,52 @@ int socket_inaddr_any_server(int port, int type)
     D( "socket_inaddr_server: port %d type %s => fd %d\n", port, type != SOCK_STREAM ? "udp" : "tcp", _fh_to_int(f) );
     return _fh_to_int(f);
 }
+
+int btsocket_inaddr_any_server(int port, int type)
+{
+    FH  f = _fh_alloc( &_fh_socket_class );
+	struct sockaddr_l2 addr;
+	SOCKET s;
+    int n;
+
+    if (!f)
+        return -1;
+
+    if (!_winsock_init)
+        _init_winsock();
+
+    memset(&addr, 0, sizeof(addr));
+
+	s = socket(PF_BLUETOOTH, type, BTPROTO_L2CAP);  //发送数据，使用SOCK_SEQPACKET为好
+	if(s == INVALID_SOCKET) {
+        _fh_close(f);
+        return -1;
+    }
+
+	//将server socket绑定到相应的psm
+	addr.l2_family = PF_BLUETOOTH;
+	addr.l2_psm = htobs(port);
+	bacpy(&server_addr.l2_bdaddr, BDADDR_ANY);
+	
+    f->fh_socket = s;
+    n = 1;
+    setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (const char*)&n, sizeof(n));
+
+    if(bind(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+        _fh_close(f);
+        return -1;
+    }
+
+    int ret;
+	ret = listen(s, LISTEN_BACKLOG);
+	if (ret < 0) {
+		_fh_close(f);
+		return -1;
+	}
+    return _fh_to_int(f);
+
+}
+
 
 #undef accept
 int  adb_socket_accept(int  serverfd, struct sockaddr*  addr, socklen_t  *addrlen)

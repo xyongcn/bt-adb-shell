@@ -704,9 +704,51 @@ static void listener_disconnect(void*  _l, atransport*  t)
     free_listener(l);
 }
 
+/*
+extern int btsocket_network_client(char *server_addr, int cid, int type);
+extern int socket_loopback_server(int port, int type);
+extern int socket_inaddr_any_server(int port, int type);
+extern int btsocket_inaddr_any_server(int port, int type);
+static void *server_btsocket_thread(void * arg)
+{
+    int serverfd, fd;
+    struct sockaddr addr;
+    socklen_t alen;
+    int port = (int)arg;
+
+    D("transport: server_socket_thread() starting\n");
+    serverfd = -1;
+    for(;;) {
+        if(serverfd == -1) {
+            serverfd = btsocket_inaddr_any_server(port, SOCK_SEQPACKET);
+            if(serverfd < 0) {
+                D("server: cannot bind socket yet\n");
+                adb_sleep_ms(1000);
+                continue;
+            }
+            close_on_exec(serverfd);
+        }
+
+        alen = sizeof(addr);
+        D("server: trying to get new connection from\n");
+        fd = adb_socket_accept(serverfd, &addr, &alen);
+        if(fd >= 0) {
+            D("server: new connection on fd %d\n", fd);
+            close_on_exec(fd);
+            disable_tcp_nagle(fd);
+            register_socket_transport(fd, "host", port, 1);
+        }
+    }
+    D("transport: server_socket_thread() exiting\n");
+    return 0;
+}*/
+
 int local_name_to_fd(const char *name)
 {
     int port;
+
+    //////////
+    //server_btsocket_thread(DEFAULT_BT_PSM);
 
     if(!strncmp("tcp:", name, 4)){
         int  ret;
@@ -1273,6 +1315,7 @@ int adb_main(int is_daemon, int server_port)
 
     init_transport_registration();
 
+//\D4ڱ\E0\D2\EB\B5\C4ʱ\BA\F2\B5\B1ADB_HOST=1ʱ\A3\AC\B1\ED\C3\F7\B5\C4\CAǱ\E0\D2\EB\B5\C4HOSTADB\A3\AC\B5\B1ADB_HOST=0ʱ\A3\AC\B1\EDʾ\B1\E0\D2\EB\B5\C4SlaveADB,\BC\B4ADBD
 #if ADB_HOST
     HOST = 1;
 
@@ -1308,6 +1351,7 @@ int adb_main(int is_daemon, int server_port)
     /* don't listen on a port (default 5037) if running in secure mode */
     /* don't run as root if we are running in secure mode */
     if (should_drop_privileges()) {
+	D("adb_main(): in the if should_drop_privileges()\n");
         drop_capabilities_bounding_set_if_needed();
 
         /* add extra groups:
@@ -1340,6 +1384,7 @@ int adb_main(int is_daemon, int server_port)
     } else {
         char local_name[30];
         build_local_name(local_name, sizeof(local_name), server_port);
+	D("adb_main(): pre install_listener()\n");
         if(install_listener(local_name, "*smartsocket*", NULL, 0)) {
             exit(1);
         }
@@ -1362,9 +1407,11 @@ int adb_main(int is_daemon, int server_port)
     if (sscanf(value, "%d", &port) == 1 && port > 0) {
         printf("using port=%d\n", port);
         // listen on TCP port specified by service.adb.tcp.port property
+	D("adb_main(): pre local_init(%d)\n", port);
         local_init(port);
     } else if (!usb) {
         // listen on default port
+	D("adb_main(): pre local_init(%d)\n", DEFAULT_ADB_LOCAL_TRANSPORT_PORT);
         local_init(DEFAULT_ADB_LOCAL_TRANSPORT_PORT);
     }
 
