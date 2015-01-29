@@ -5,10 +5,11 @@ Bluetooth-based adb shell application
 
 # 两部分：编译adb与编译adbd
 # 编译adb
-1. 环境：32位ubuntu
-2. cd system/core/adb
+1. 环境：32位ubuntu(64位系统会出错)
+2. 将bluez-lib-3.36_gcc build external include  system   目录拷贝到同一个文件夹中
+3. cd system/core/adb
 3. make
-    * 可能需要修改Makefile，将-lbluetooth前指定的位置修正。
+    * 可能需要修改Makefile，将-lbluetooth前指定的位置修正；如果按照原来的目录结构，就不用修改了。
     * 如果提示libbluetooth.a不匹配，则需要自行编译bluez-lib-3.36（静态编译./configure --host=arm-none-linux-gnueabi --prefix=<.....> --enable-shared=no --enable-static=yes）
 
 # 编译adbd
