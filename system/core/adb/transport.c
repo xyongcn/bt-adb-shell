@@ -1178,7 +1178,9 @@ int writex(int fd, const void *ptr, size_t len)
     D("writex: fd=%d len=%d: ", fd, (int)len);
     dump_hex( ptr, len );
 #endif
-    while(len > 0) {
+
+/*
+	while(len > 0) {
         r = adb_write(fd, p, len);
         if(r > 0) {
             len -= r;
@@ -1194,6 +1196,55 @@ int writex(int fd, const void *ptr, size_t len)
             return -1;
         }
     }
+    return 0;
+
+
+*/
+
+	int maxnum=500;
+	if(len>maxnum)
+	{
+		while(len>maxnum)
+		{
+			r=adb_write(fd,p,maxnum);
+			if(r>0)
+			{
+				len-=r;
+				p+=r;
+			}
+			else
+			{
+				if (r < 0) {
+	                D("writex: fd=%d error %d: %s\n", fd, errno, strerror(errno));
+	                if (errno == EINTR)
+	                    continue;
+	            } else {
+	                D("writex: fd=%d disconnected\n", fd);
+	            }
+	            return -1;
+			}
+		}
+	}
+	
+	while(len > 0) {
+        r = adb_write(fd, p, len);
+        if(r > 0) {
+            len -= r;
+            p += r;
+        } else {
+            if (r < 0) {
+                D("writex: fd=%d error %d: %s\n", fd, errno, strerror(errno));
+                if (errno == EINTR)
+                    continue;
+            } else {
+                D("writex: fd=%d disconnected\n", fd);
+            }
+            return -1;
+        }
+	}
+	
+
+    
     return 0;
 }
 
