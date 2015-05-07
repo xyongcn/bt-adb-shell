@@ -1,0 +1,3 @@
+linux-client :这是linux-client.c编译后的可执行文件，用来作为linux端执行的客户端
+linux-client.c :这是linux端的蓝牙客户端，用它通过蓝牙连接移动设备进行shell的操作。
+bluetooth_shell_proc.c :这是移动设备端运行的利用蓝牙接收服务器端控制的shell程序。
