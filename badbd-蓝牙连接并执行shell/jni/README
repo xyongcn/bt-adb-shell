@@ -1,14 +1,13 @@
 程序说明：
-=====
->linux-client :这是linux-client.c编译后的可执行文件，用来作为linux端执行的客户端。   
->linux-client.c :这是linux端的蓝牙客户端，用它通过蓝牙连接移动设备进行shell的操作。   
->bluetooth_shell_proc.c :这是移动设备端运行的利用蓝牙接收服务器端控制的shell程序。   
+linux-client :这是linux-client.c编译后的可执行文件，用来作为linux端执行的客户端。   
+linux-client.c :这是linux端的蓝牙客户端，用它通过蓝牙连接移动设备进行shell的操作。   
+bluetooth_shell_proc.c :这是移动设备端运行的利用蓝牙接收服务器端控制的shell程序。   
 
 详细说明：
----
 linux-client.c   
 思路：建立一个读取标准输入的循环，如果输入了bleconnect [蓝牙地址] 则进行连接到蓝牙地址上，然后就可以输入shell命令传递给移动端，并且会接受移动端传输回来的消息进行显示。
-main函数就是这个读取玄循环，solve_socketread就是对蓝牙连接进行读取显示的线程函数。   
+1.main函数就是这个读取标准输入的循环
+2.solve_socketread就是对蓝牙连接进行读取显示的线程函数。   
 
 bluetooth_shell_proc.c   
 思路：子进程执行sh命令，父进程作为蓝牙的服务端来接收linux客户端的shell命令，同时建立一个线程用来接收子进程的shell执行结果。同时会建立两个管道，一个作为父进程将命令传递个子进程使用，一个接受子进程shell执行结果并通过蓝牙连接发送给linux客户端。   
