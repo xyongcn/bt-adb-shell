@@ -37,14 +37,16 @@ bt-adb-shell For Intel Edison
 6. 在edison中开机启动后台daemon程序
 	* 思路：写一个shell脚本，在脚本中执行后台程序。把你的启动脚本放在/etc/init.d里
 	* 注：先前的edison的yocto版本1.6中，在/etc里没有init.d文件夹，可以自己创建一个mkdir init.d,而最新的yocto版本1.6.1里面是含有init.d文件夹的
+	* 把bt-shell-edison程序放到/mnt下，并设置可执行权限
+	* 执行：update-rc.d /etc/init.d/my_start.sh defaults 97
 	* 脚本内容：
-```bash
+	
+``` bash
 #!/bin/sh
 rfkill unblock bluetooth
 /mnt/bt-shell-edison
-```
-	* 把bt-shell-edison程序放到/mnt下，并设置可执行权限
-	* 执行：update-rc.d /etc/init.d/my_start.sh defaults 97
+``` 
+
 	
 
 7. 软件使用
