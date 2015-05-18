@@ -34,11 +34,27 @@ bt-adb-shell For Intel Edison
 	* $CC bt-shell-edison.c -o bt-shell-edison -lpthread -lbluetooth
 	* gcc linux-client.c -o linux-client -lpthread -lbluetooth
 	
-6. 软件使用
-	* edison：
-		* rfkill unblock bluetooth
-		* ./bt-shell-edison
+6. 在edison中开机启动后台daemon程序
+	* 思路：写一个shell脚本，在脚本中执行后台程序。把你的启动脚本放在/etc/init.d里
+	* 注：先前的edison的yocto版本1.6中，在/etc里没有init.d文件夹，可以自己创建一个mkdir init.d,而最新的yocto版本1.6.1里面是含有init.d文件夹的
+	* 脚本内容：
+```bash
+#!/bin/sh
+rfkill unblock bluetooth
+/mnt/bt-shell-edison
+```
+	* 把bt-shell-edison程序放到/mnt下，并设置可执行权限
+	* 执行：update-rc.d /etc/init.d/my_start.sh defaults 97
+	
+
+7. 软件使用
+	* edison：插电，等待启动
 	* PC:
 		* ./linux-client
 		* bleconnect <edison的蓝牙地址>
 		* 连接成功后可以操作edison的shell
+
+# 存在的问题
+1. 只重定向了标准输入输出，没有重定向错误流
+2. tab键补全操作无效
+3. 无法编辑文本
