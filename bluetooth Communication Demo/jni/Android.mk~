@@ -1,9 +1,0 @@
-LOCAL_PATH := $(call my-dir)
-include $(CLEAR_VARS)
-LOCAL_MODULE := bluetooth-pan
-LOCAL_SRC_FILES := Bluetooth.c
-LOCAL_CFLAGS += -I./include
-LOCAL_LDLIBS += -L./libfrompanda -lbluetooth
-include $(BUILD_EXECUTABLE)
-#include $(BUILD_STATIC_LIBRARY)
-#include $(BUILD_SHARED_LIBRARY)

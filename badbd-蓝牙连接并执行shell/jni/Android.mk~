@@ -1,9 +1,0 @@
-LOCAL_PATH := $(call my-dir)
-include $(CLEAR_VARS)
-LOCAL_MODULE := tcpAndBle-pan
-LOCAL_SRC_FILES := tcpAndBle.c
-LOCAL_CFLAGS += -I/home/wwtao/Desktop/bluetooth/include/include
-LOCAL_LDLIBS += -L/home/wwtao/Desktop/bluetooth/libfrompanda
-include $(BUILD_EXECUTABLE)
-#include $(BUILD_STATIC_LIBRARY)
-#include $(BUILD_SHARED_LIBRARY)
