@@ -24,6 +24,7 @@
 
 #define   TRACE_TAG  TRACE_TRANSPORT
 #include "adb.h"
+#include "file_sync_service.h"
 
 static void transport_unref(atransport *t);
 
@@ -1027,7 +1028,7 @@ int writex(int fd, const void *ptr, size_t len)
     dump_hex( ptr, len );
 #endif
 
-	int maxnum=500;
+	int maxnum = SYNC_DATA_MAX + 20;
 	if(len>maxnum)
 	{
 		while(len>maxnum)
