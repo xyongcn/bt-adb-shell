@@ -19,6 +19,8 @@ rfkill unblock bluetooth
 
 #Trouble shooting
 1. "pushd" and "popd" cmd error
-	* You can google it. (simple)
+	* This has to do with /bin/sh being linked to /bin/dash instead of /bin/bash in ubuntu’s    latest releases. To fix it once and for all do the following:
+		* rm -f /bin/sh
+		* ln -s /bin/bash /bin/sh
 	* Or, you can manually run 'make' in core/libcutils and then core/adb directories. The adbd is in the core/adb.
 
